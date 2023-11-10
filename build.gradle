@@ -1,0 +1,81 @@
+plugins {
+    id 'java-library'
+    id 'io.qameta.allure' version '2.11.2'
+    id "io.freefair.lombok" version "6.0.0-m2"
+}
+
+group = 'com.krigersv'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+def selenideVersion = "6.13.0",
+    appiumVersion = "8.3.0",
+    allureVersion = "2.21.0",
+    slf4jVersion = "2.0.7",
+    junitVersion = "5.9.3",
+    restAssuredVersion = "5.3.0",
+    ownerVersion = "1.0.4",
+    assertjVersion = "3.24.2",
+    commonsVersion = "2.11.0"
+
+
+allure {
+    report {
+        version.set(allureVersion)
+    }
+    adapter {
+        aspectjWeaver.set(true)
+        frameworks {
+            junit5 {
+                adapterVersion.set(allureVersion)
+            }
+        }
+    }
+}
+
+dependencies {
+    testImplementation (
+            "com.codeborne:selenide:$selenideVersion",
+            "io.qameta.allure:allure-selenide:$allureVersion",
+            "io.appium:java-client:$appiumVersion",
+            "org.aeonbits.owner:owner:$ownerVersion",
+            "io.rest-assured:rest-assured:$restAssuredVersion",
+            "org.junit.jupiter:junit-jupiter:$junitVersion",
+            "org.slf4j:slf4j-simple:$slf4jVersion",
+            "org.assertj:assertj-core:$assertjVersion",
+            "commons-io:commons-io:$commonsVersion",
+    )
+}
+
+compileJava.options.encoding = 'UTF-8'
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+tasks.withType(Test) {
+    useJUnitPlatform()
+    systemProperties(System.getProperties())
+
+    testLogging {
+        lifecycle {
+            events "started", "skipped", "failed", "standard_error", "standard_out"
+            exceptionFormat "short"
+        }
+    }
+}
+
+task android(type: Test) {
+    useJUnitPlatform {
+        includeTags("android")
+    }
+}
+
+task local(type: Test) {
+    useJUnitPlatform {
+        includeTags("androidLocal")
+    }
+}
